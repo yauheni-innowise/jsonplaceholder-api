@@ -1,14 +1,14 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { AppModule } from '../../src/app.module';
 import { User } from '../../src/users/entities/user.entity';
 import { CreateUserDto } from '../../src/users/dto/create-user.dto';
+import { createTestApp, generateTestToken } from '../utils/test-app';
 
 describe('UsersController (e2e)', () => {
   let app: INestApplication;
   let userRepository: any;
+  let authToken: string;
 
   const mockUser = {
     id: 1,
@@ -43,26 +43,22 @@ describe('UsersController (e2e)', () => {
     remove: jest.fn().mockResolvedValue(undefined),
   };
 
-  beforeEach(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    })
-      .overrideProvider(getRepositoryToken(User))
-      .useValue(mockUserRepository)
-      .compile();
 
-    app = moduleFixture.createNestApplication();
-    app.useGlobalPipes(
-      new ValidationPipe({
-        whitelist: true,
-        transform: true,
-        forbidNonWhitelisted: true,
-      }),
-    );
+
+  beforeEach(async () => {
+    // Create test app
+    app = await createTestApp();
     
-    userRepository = moduleFixture.get(getRepositoryToken(User));
+    // Get the repository from the app
+    userRepository = app.get(getRepositoryToken(User));
     
-    await app.init();
+    // Override the repository methods with our mocks
+    Object.keys(mockUserRepository).forEach(key => {
+      userRepository[key] = mockUserRepository[key as keyof typeof mockUserRepository];
+    });
+    
+    // Generate a test JWT token for authentication
+    authToken = generateTestToken();
   });
 
   afterEach(async () => {
@@ -78,9 +74,14 @@ describe('UsersController (e2e)', () => {
       // When
       return request(app.getHttpServer())
         .get('/api/users')
+        .set('Authorization', `Bearer ${authToken}`)
         .expect(200)
         // Then
-        .expect(expectedUsers);
+        .expect((res) => {
+          expect(res.body).toHaveProperty('data');
+          expect(res.body).toHaveProperty('meta');
+          expect(res.body.data).toEqual(expectedUsers);
+        });
     });
   });
 
@@ -94,9 +95,14 @@ describe('UsersController (e2e)', () => {
       // When
       return request(app.getHttpServer())
         .get(`/api/users/${userId}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .expect(200)
         // Then
-        .expect(expectedUser);
+        .expect((res) => {
+          expect(res.body).toHaveProperty('data');
+          expect(res.body).toHaveProperty('meta');
+          expect(res.body.data).toEqual(expectedUser);
+        });
     });
 
     it('should return 404 when user does not exist', () => {
@@ -107,6 +113,7 @@ describe('UsersController (e2e)', () => {
       // When
       return request(app.getHttpServer())
         .get(`/api/users/${userId}`)
+        .set('Authorization', `Bearer ${authToken}`)
         // Then
         .expect(404);
     });
@@ -145,10 +152,15 @@ describe('UsersController (e2e)', () => {
       // When
       return request(app.getHttpServer())
         .post('/api/users')
+        .set('Authorization', `Bearer ${authToken}`)
         .send(createUserDto)
         .expect(201)
         // Then
-        .expect(expectedUser);
+        .expect((res) => {
+          expect(res.body).toHaveProperty('data');
+          expect(res.body).toHaveProperty('meta');
+          expect(res.body.data).toEqual(expectedUser);
+        });
     });
 
     it('should return 400 when validation fails', () => {
@@ -161,6 +173,7 @@ describe('UsersController (e2e)', () => {
       // When
       return request(app.getHttpServer())
         .post('/api/users')
+        .set('Authorization', `Bearer ${authToken}`)
         .send(invalidUserDto)
         // Then
         .expect(400);
@@ -181,10 +194,15 @@ describe('UsersController (e2e)', () => {
       // When
       return request(app.getHttpServer())
         .put(`/api/users/${userId}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send(updateUserDto)
         .expect(200)
         // Then
-        .expect(expectedUser);
+        .expect((res) => {
+          expect(res.body).toHaveProperty('data');
+          expect(res.body).toHaveProperty('meta');
+          expect(res.body.data).toEqual(expectedUser);
+        });
     });
 
     it('should return 404 when trying to update non-existent user', () => {
@@ -197,6 +215,7 @@ describe('UsersController (e2e)', () => {
       // When
       return request(app.getHttpServer())
         .put(`/api/users/${userId}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send(updateUserDto)
         // Then
         .expect(404);
@@ -212,6 +231,7 @@ describe('UsersController (e2e)', () => {
       // When
       return request(app.getHttpServer())
         .delete(`/api/users/${userId}`)
+        .set('Authorization', `Bearer ${authToken}`)
         // Then
         .expect(204);
     });
@@ -224,6 +244,7 @@ describe('UsersController (e2e)', () => {
       // When
       return request(app.getHttpServer())
         .delete(`/api/users/${userId}`)
+        .set('Authorization', `Bearer ${authToken}`)
         // Then
         .expect(404);
     });
@@ -234,9 +255,14 @@ describe('UsersController (e2e)', () => {
       // When
       return request(app.getHttpServer())
         .get('/api/users/admin/test')
+        .set('Authorization', `Bearer ${authToken}`)
         .expect(200)
         // Then
-        .expect({ message: 'Users API is working!' });
+        .expect((res) => {
+          expect(res.body).toHaveProperty('data');
+          expect(res.body).toHaveProperty('meta');
+          expect(res.body.data).toEqual({ message: 'Users API is working!' });
+        });
     });
   });
 });
