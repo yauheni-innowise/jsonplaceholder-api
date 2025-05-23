@@ -1,4 +1,4 @@
-FROM node:18-alpine As development
+FROM node:20-alpine As development
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -18,7 +18,7 @@ COPY . .
 # Build the application
 RUN npm run build
 
-FROM node:18-alpine As production
+FROM node:20-alpine As production
 
 # Set NODE_ENV to production
 ENV NODE_ENV=production
