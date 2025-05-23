@@ -12,6 +12,7 @@ A backend API that replicates the behavior and structure of JSONPlaceholder with
 - Comprehensive test coverage with unit and integration tests
 - Standardized API responses with proper error handling
 - Environment variable validation and type safety
+- Interactive API documentation with Swagger/OpenAPI
 
 ## Technology Stack
 
@@ -23,6 +24,7 @@ A backend API that replicates the behavior and structure of JSONPlaceholder with
 - **Validation**: class-validator, Joi
 - **Containerization**: Docker, Docker Compose
 - **Testing**: Jest, Supertest
+- **Documentation**: Swagger/OpenAPI
 
 ## Project Structure
 
@@ -88,6 +90,8 @@ docker-compose up
 
 The API will be available at [http://localhost:3000/api](http://localhost:3000/api)
 
+API documentation will be available at [http://localhost:3000/api/docs](http://localhost:3000/api/docs)
+
 ### API Endpoints
 
 #### Authentication
@@ -103,6 +107,20 @@ The API will be available at [http://localhost:3000/api](http://localhost:3000/a
 - `POST /api/users` - Create a new user
 - `PUT /api/users/:id` - Update a user
 - `DELETE /api/users/:id` - Delete a user
+
+### API Documentation
+
+The API is documented using Swagger/OpenAPI. You can access the interactive documentation at:
+
+```
+http://localhost:3000/api/docs
+```
+
+The Swagger UI provides:
+- Detailed information about all endpoints
+- Request and response schemas
+- The ability to test endpoints directly from the browser
+- Authentication support via the Authorize button
 
 ### Running Tests
 
