@@ -199,6 +199,35 @@ The project includes a production-ready Docker Compose configuration that can be
 docker-compose -f docker-compose.prod.yml up -d
 ```
 
+## Utility Scripts
+
+The project includes several utility scripts in the `scripts/` directory to simplify common tasks:
+
+### Available Scripts
+
+- `setup.sh` - Checks prerequisites (Docker, Docker Compose), creates a default `.env` file, and starts the application
+- `dev.sh` - Starts the application in development mode, installing dependencies if needed
+- `test.sh` - Runs tests with proper environment setup
+- `seed.sh` - Seeds the database with initial data
+
+### Running Scripts
+
+To run any of these scripts, make them executable (if they aren't already) and execute them from the project root:
+
+```bash
+# Make a script executable (if needed)
+chmod +x scripts/script-name.sh
+
+# Run a script
+./scripts/script-name.sh
+```
+
+Alternatively, you can run them using bash directly:
+
+```bash
+bash scripts/script-name.sh
+```
+
 ### Security Considerations
 
 For production deployments, make sure to:
